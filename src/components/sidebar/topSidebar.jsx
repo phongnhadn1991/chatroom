@@ -1,7 +1,7 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import getCharAt from "@/mixins/getCharAt";
 import { Button } from "@/components/ui/button"
-import { Lock, LogOut } from "lucide-react"
+import { Lock, LogOut, ListPlus, Loader2 } from "lucide-react"
 import {
     Tooltip,
     TooltipContent,
@@ -9,9 +9,40 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Separator } from "@/components/ui/separator";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { auth } from '@/firebase/config';
+import { useForm } from 'react-hook-form';
+import { addDocument } from '@/firebase/service';
 
 const TopSidebar = ({ user }) => {
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+    const [isLoading, setIsLoading] = useState(false);
+    const [openAddRoom, setopenAddRoom] = useState(false);
+
+    const onSubmit = async (data) => {
+        setIsLoading(true)
+        const roomObject = {
+            name: data.nameRoom,
+            description: data.descriptionRoom,
+            members: [user.uid]
+        }
+        await addDocument('rooms', roomObject)
+        reset()
+        setIsLoading(false)
+        setopenAddRoom(false)
+    };
+
     return (
         <Fragment>
             <div className="flex justify-between items-center gap-3">
@@ -44,7 +75,70 @@ const TopSidebar = ({ user }) => {
                 </div>
             </div>
             <Separator className="my-4" />
-        </Fragment>
+            <div className='flex justify-end gap-2 mb-2'>
+                <Dialog open={openAddRoom} onOpenChange={setopenAddRoom}>
+                    <DialogTrigger asChild>
+                        <Button className="inline-flex" variant="outline">
+                            <ListPlus className="color-gray-700 mr-2" />
+                            <span className='text-md'>Add room</span>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <DialogHeader>
+                                <DialogTitle>Add New Room</DialogTitle>
+                                <DialogDescription>
+                                    Add Room to create and manage new chat rooms easily.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="nameRoom" className="text-right">
+                                        Name
+                                    </Label>
+                                    <Input
+                                        id="nameRoom"
+                                        name="nameRoom"
+                                        className="col-span-3"
+                                        {...register('nameRoom', { required: true })}
+                                    />
+                                </div>
+                                {errors.nameRoom &&
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <span className='col-span-3 col-start-2 text-xs text-red-500'>This field is required</span>
+                                    </div>
+                                }
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="descriptionRoom" className="text-right">
+                                        Description
+                                    </Label>
+                                    <Input
+                                        id="descriptionRoom"
+                                        name="descriptionRoom"
+                                        className="col-span-3"
+                                        {...register('descriptionRoom', { required: true })}
+                                    />
+                                </div>
+                                {errors.descriptionRoom &&
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <span className='col-span-3 col-start-2 text-xs text-red-500'>This field is required</span>
+                                    </div>
+                                }
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button type="button" variant="secondary" disabled={isLoading}>
+                                        Close
+                                    </Button>
+                                </DialogClose>
+                                <Button type="submit">{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Add room</Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+
+                </Dialog>
+            </div>
+        </Fragment >
     );
 }
 

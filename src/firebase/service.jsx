@@ -11,7 +11,7 @@ export const addDocument = async (collectionName, data) => {
             ...data,
             createdAt: serverTimestamp(),
         });
-        console.log("Document written with ID: ", docRef.id);
+        console.log("Document written with ID: ", collectionName, docRef.id);
     } catch (error) {
         console.error("Error adding document: ", error);
     }

@@ -11,6 +11,8 @@ import TopSidebar from "@/components/sidebar/topSidebar";
 import ListRoom from "@/components/rooms/listRoom";
 
 const Home = () => {
+  const { user } = useContext(AuthContext)
+  const { rooms, selectedRoom, setSelectedRoom, roomMembers } = useContext(AppContext)
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [chatItems, setChatItems] = useState([
@@ -36,38 +38,47 @@ const Home = () => {
       timestamp: "2 days ago",
     },
   ]);
-  const { user } = useContext(AuthContext)
-  const { rooms, selectedRoom, setSelectedRoom, roomMembers } = useContext(AppContext)
 
   const groupedRooms = useMemo(() => {
     const groups = {};
 
     rooms.forEach(room => {
-      const date = new Date(room.createdAt.seconds * 1000);
-      let groupKey;
+      if (room.createdAt && room.createdAt.seconds) {
+        const date = new Date(room.createdAt.seconds * 1000);
+        let groupKey;
 
-      if (isToday(date)) {
-        groupKey = 'Today';
-      } else if (isYesterday(date)) {
-        groupKey = 'Yesterday';
-      } else {
-        const daysAgo = differenceInDays(new Date(), date);
-        groupKey = `${daysAgo} days ago`;
-      }
+        // Tạo key dựa trên ngày
+        if (isToday(date)) {
+          groupKey = 'Today';
+        } else if (isYesterday(date)) {
+          groupKey = 'Yesterday';
+        } else {
+          const daysAgo = differenceInDays(new Date(), date);
+          groupKey = `${daysAgo} days ago`;
+        }
 
-      if (!groups[groupKey]) {
-        groups[groupKey] = [];
+        // Tạo mảng nhóm nếu chưa có
+        if (!groups[groupKey]) {
+          groups[groupKey] = [];
+        }
+
+        // Thêm room vào nhóm
+        groups[groupKey].unshift(room);
       }
-      groups[groupKey].push(room);
     });
 
+    // Sắp xếp các nhóm theo thứ tự 'Today', 'Yesterday', sau đó là theo ngày cũ nhất
     return Object.entries(groups).sort((a, b) => {
       const order = ['Today', 'Yesterday'];
       const indexA = order.indexOf(a[0]);
       const indexB = order.indexOf(b[0]);
+
+      // Sắp xếp theo thứ tự Today, Yesterday trước, sau đó theo ngày cũ
       if (indexA !== -1 && indexB !== -1) return indexA - indexB;
       if (indexA !== -1) return -1;
       if (indexB !== -1) return 1;
+
+      // Nếu không phải 'Today' hay 'Yesterday', sắp xếp theo timestamp
       return b[1][0].createdAt.seconds - a[1][0].createdAt.seconds;
     });
   }, [rooms]);
