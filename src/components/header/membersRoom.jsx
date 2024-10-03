@@ -3,15 +3,12 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+    DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { UserPlus2 } from "lucide-react"
+import getCharAt from "@/mixins/getCharAt";
 
 const MembersRoom = ({ roomMembers }) => {
-    const getCharAtUser = (data) => data !== undefined ? data.charAt(0).toUpperCase() : ''
-
     return (
         <div className="flex items-center gap-4">
             <div className="flex -space-x-2">
@@ -21,7 +18,7 @@ const MembersRoom = ({ roomMembers }) => {
                         <img key={member.uid} className="inline-block size-[32px] rounded-full ring-2 ring-white dark:ring-neutral-900" src={member.photoURL} alt="Avatar" />
                         :
                         <div key={member.uid} className="inline-flex items-center justify-center bg-gray-200 size-[32px] rounded-full ring-2 ring-white dark:ring-neutral-900">
-                            <span className="font-normal text-md text-gray-600 dark:text-gray-500">{member.displayName ? getCharAtUser(member.displayName) : getCharAtUser(member.email)}</span>
+                            <span className="font-normal text-md text-gray-600 dark:text-gray-500">{member.displayName ? getCharAt(member.displayName) : getCharAt(member.email)}</span>
                         </div>
                 }
                 )}

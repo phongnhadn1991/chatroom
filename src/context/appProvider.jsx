@@ -20,6 +20,13 @@ export const AppProvider = ({ children }) => {
         return rooms.find(room => room.id === selectedRoom.roomId)
     }, [rooms, selectedRoom.roomId])
 
+    const conditionRoomMembers = useMemo(() => {
+        if (selectedRoom.roomInfo && selectedRoom.roomInfo.members?.length > 0) {
+            return { fieldName: 'uid', operator: 'in', value: selectedRoom.roomInfo.members };
+        }
+    }, [selectedRoom.roomInfo?.id]);
+    const roomMembers = useFireStore('users', conditionRoomMembers);
+
     useEffect(() => {
         if (resultSelectedRoom) {
             setSelectedRoom(prevState => ({
@@ -30,7 +37,7 @@ export const AppProvider = ({ children }) => {
     }, [resultSelectedRoom]);
 
     return (
-        <AppContext.Provider value={{ rooms, selectedRoom, setSelectedRoom }}>
+        <AppContext.Provider value={{ rooms, selectedRoom, setSelectedRoom, roomMembers }}>
             {children}
         </AppContext.Provider>
     );
