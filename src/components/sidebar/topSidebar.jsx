@@ -127,11 +127,11 @@ const TopSidebar = ({ user }) => {
                             </div>
                             <DialogFooter>
                                 <DialogClose asChild>
-                                    <Button type="button" variant="secondary" disabled={isLoading}>
+                                    <Button type="button" variant="secondary">
                                         Close
                                     </Button>
                                 </DialogClose>
-                                <Button type="submit">{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Add room</Button>
+                                <Button disabled={isLoading} type="submit">{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Add room</Button>
                             </DialogFooter>
                         </form>
                     </DialogContent>

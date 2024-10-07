@@ -117,7 +117,7 @@ const Home = () => {
       <div className="flex-1 p-6 flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <HeadingRoom selectedRoomInfo={selectedRoom.roomInfo} />
-          <MembersRoom roomMembers={roomMembers} />
+          <MembersRoom roomMembers={roomMembers} selectedRoom={selectedRoom} />
         </div>
 
         <div className="flex flex-1 bg-white p-4 rounded-md border border-gray-300">
